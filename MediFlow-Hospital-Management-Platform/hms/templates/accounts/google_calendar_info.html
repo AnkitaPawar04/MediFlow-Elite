@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Connect Google Calendar - HMS{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 3rem auto; text-align: center;">
+    <h2>Connect Google Calendar</h2>
+    <p style="color: #546E7A; margin-bottom: 2rem;">Automatically create calendar events for your appointments</p>
+    
+    <p style="color: #546E7A; margin-bottom: 2rem;">
+        By connecting your Google Calendar, appointment events will be automatically created when patients book appointments with you.
+    </p>
+    
+    <div style="background-color: #F1F8F7; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="color: #00897B; margin-bottom: 1rem;">Benefits:</h3>
+        <ul style="text-align: left; display: inline-block;">
+            <li style="margin-bottom: 0.5rem;">✓ Auto-sync appointments to your calendar</li>
+            <li style="margin-bottom: 0.5rem;">✓ Never miss an appointment</li>
+            <li style="margin-bottom: 0.5rem;">✓ Easy to share schedule with colleagues</li>
+            <li>✓ Real-time updates</li>
+        </ul>
+    </div>
+    
+    <a href="{% url 'google_calendar_connect' %}" class="btn btn-success" style="font-size: 1rem; padding: 1rem 2rem;">
+        🔗 Connect Google Calendar
+    </a>
+    
+    <p style="margin-top: 2rem; color: #546E7A; font-size: 0.9rem;">
+        We only request calendar access. Your appointment data is secure and encrypted.
+    </p>
+</div>
+{% endblock %}

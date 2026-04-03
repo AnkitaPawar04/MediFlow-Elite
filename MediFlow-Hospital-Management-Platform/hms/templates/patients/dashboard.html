@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Patient Dashboard - HMS{% endblock %}
+
+{% block content %}
+
+<!-- Patient Header + Google Calendar Connect -->
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: start;">
+        <div>
+            <h2>Patient Dashboard</h2>
+            <p style="color: #546E7A;">Welcome, {{ user.get_full_name }}</p>
+        </div>
+
+        <div style="text-align: right;">
+            {% if user.google_calendar_token %}
+                <div style="background-color: #E3F2FD; padding: 0.75rem 1rem; border-radius: 8px; color: #1565C0;">
+                    ✓ Google Calendar Connected
+                </div>
+            {% else %}
+                <a href="{% url 'google_calendar_connect' %}"
+                   class="btn"
+                   style="font-size: 0.85rem; padding: 0.6rem 1rem;">
+                    🔗 Connect Calendar
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
+    <a href="{% url 'view_doctors' %}" class="btn">Browse Doctors</a>
+    <a href="{% url 'view_slots' %}" class="btn">Available Appointments</a>
+</div>
+
+<!-- Appointment Section -->
+{% if has_booking %}
+<div class="card" style="border-left: 5px solid #2E7D32;">
+    <h3 style="color: #2E7D32;">✓ Your Appointment</h3>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 1.5rem;">
+        <div>
+            <p style="color: #546E7A; margin-bottom: 0.5rem; font-size: 0.9rem; text-transform: uppercase;">
+                Doctor
+            </p>
+            <p style="font-size: 1.1rem; font-weight: 600; color: #263238;">
+                {{ booking.doctor.get_full_name }}
+            </p>
+        </div>
+
+        <div>
+            <p style="color: #546E7A; margin-bottom: 0.5rem; font-size: 0.9rem; text-transform: uppercase;">
+                Date & Time
+            </p>
+            <p style="font-size: 1.1rem; font-weight: 600; color: #263238;">
+                {{ booking.slot.date|date:"M d, Y" }} at {{ booking.slot.start_time|time:"H:i" }}
+            </p>
+        </div>
+    </div>
+
+    <form method="post" action="{% url 'cancel_booking' %}" style="margin-top: 1.5rem;">
+        {% csrf_token %}
+        <button type="submit"
+                class="btn btn-danger"
+                onclick="return confirm('Cancel this appointment?');">
+            Cancel Appointment
+        </button>
+    </form>
+</div>
+
+{% else %}
+<div class="card" style="border-left: 5px solid #00897B; background-color: #F1F8F7;">
+    <h3 style="color: #00897B;">No Appointment Scheduled</h3>
+    <p style="color: #546E7A; margin-bottom: 1rem;">
+        You don't have any appointments booked yet.
+    </p>
+    <a href="{% url 'view_slots' %}" class="btn">
+        Find and Book an Appointment
+    </a>
+</div>
+{% endif %}
+
+{% endblock %}

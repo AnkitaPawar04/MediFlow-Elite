@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}View Bookings - HMS{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Patient Bookings</h2>
+    <p style="color: #546E7A; margin-bottom: 1.5rem;">All appointments booked with you</p>
+    
+    {% if bookings %}
+    <div style="overflow-x: auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Patient Name</th>
+                    <th>Contact</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Booked</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                <tr>
+                    <td><strong>{{ booking.patient.get_full_name }}</strong></td>
+                    <td>{{ booking.patient.email }}</td>
+                    <td>{{ booking.slot.date|date:"M d, Y" }}</td>
+                    <td>{{ booking.slot.start_time|time:"H:i" }} – {{ booking.slot.end_time|time:"H:i" }}</td>
+                    <td>{{ booking.created_at|date:"M d, Y" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p style="color: #546E7A; text-align: center; padding: 2rem;">No bookings yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

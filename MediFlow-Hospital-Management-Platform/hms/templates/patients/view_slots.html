@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Book Appointment - HMS{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Available Appointment Slots</h2>
+    <p style="color: #546E7A;">Select a slot and click "Book" to schedule your appointment</p>
+</div>
+
+{% if slots %}
+<div style="overflow-x: auto;">
+    <table>
+        <thead>
+            <tr>
+                <th>Doctor</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for slot in slots %}
+            <tr>
+                <td><strong>Dr. {{ slot.doctor.get_full_name }}</strong></td>
+                <td>{{ slot.date|date:"M d, Y" }}</td>
+                <td>{{ slot.start_time|time:"H:i" }} – {{ slot.end_time|time:"H:i" }}</td>
+                <td>
+                    <form method="post" action="{% url 'book_appointment' slot.id %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success">Book</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card">
+    <p style="color: #546E7A; text-align: center; padding: 2rem;">No available slots at the moment. Try again later.</p>
+</div>
+{% endif %}
+{% endblock %}

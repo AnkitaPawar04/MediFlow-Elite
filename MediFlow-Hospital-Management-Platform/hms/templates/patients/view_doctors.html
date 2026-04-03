@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Browse Doctors - HMS{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Available Doctors</h2>
+    <p style="color: #546E7A;">Select a doctor to view their available appointment slots</p>
+</div>
+
+{% if doctors %}
+<div class="grid">
+    {% for doctor in doctors %}
+    <div class="card" style="padding: 1.5rem; display: flex; flex-direction: column;">
+        <h3 style="margin-bottom: 0.5rem;">Dr. {{ doctor.get_full_name }}</h3>
+        <p style="color: #546E7A; margin-bottom: 1rem; font-size: 0.9rem;">{{ doctor.email }}</p>
+        <a href="{% url 'view_doctor_slots' doctor.id %}" class="btn" style="margin-top: auto;">View Availability</a>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card">
+    <p style="color: #546E7A; text-align: center; padding: 2rem;">No doctors available at the moment.</p>
+</div>
+{% endif %}
+{% endblock %}
