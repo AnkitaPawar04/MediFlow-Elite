@@ -1,0 +1,92 @@
+<!-- Notification Widget - Include this in doctor/patient dashboards -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-gradient d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #00897b 0%, #004d40 100%);">
+        <h5 class="mb-0 text-white">
+            <i class="fas fa-bell me-2"></i>Recent Notifications
+        </h5>
+        <div class="d-flex gap-2">
+            {% if unread_notifications > 0 %}
+            <span class="badge bg-danger rounded-pill notification-badge" id="notification-badge">{{ unread_notifications }}</span>
+            {% endif %}
+            <a href="{% url 'notifications_list' %}" class="btn btn-sm btn-light text-white">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div id="recent-notifications" class="notification-widget">
+            {% if recent_notifications %}
+                {% for notification in recent_notifications %}
+                <div class="notification-item-widget {% if not notification.is_read %}unread-item{% endif %} p-3 border-bottom d-flex align-items-start gap-3" style="{% if not notification.is_read %}background-color: rgba(0, 137, 123, 0.05);{% endif %}">
+                    <div class="notification-icon-widget" style="width: 40px; height: 40px; background-color: #{% if notification.icon_color == 'success' %}28a745{% elif notification.icon_color == 'warning' %}ffc107{% elif notification.icon_color == 'danger' %}dc3545{% elif notification.icon_color == 'primary' %}007bff{% else %}17a2b8{% endif %}20; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <i class="fas {{ notification.icon }} text-{{ notification.icon_color }}"></i>
+                    </div>
+                    <div class="flex-grow-1 min-width-0">
+                        <h6 class="mb-1" style="{% if not notification.is_read %}font-weight: 600;{% endif %}color: #2d5860;">
+                            {{ notification.title }}
+                        </h6>
+                        <p class="mb-2 text-muted small" style="font-size: 0.85rem;">
+                            {{ notification.message|truncatewords:15 }}
+                        </p>
+                        <small class="text-muted">
+                            <i class="fas fa-clock me-1"></i>{{ notification.get_time_ago }}
+                        </small>
+                    </div>
+                    {% if not notification.is_read %}
+                    <div class="notification-unread-dot" style="width: 8px; height: 8px; background-color: #00897b; border-radius: 50%; flex-shrink: 0; margin-top: 8px;"></div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-inbox fa-3x text-muted mb-2" style="opacity: 0.3;"></i>
+                    <p class="text-muted small">No notifications yet</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Widget Footer -->
+        <div class="p-3 bg-light border-top text-center">
+            <a href="{% url 'notifications_list' %}" class="btn btn-sm btn-outline-primary">
+                <i class="fas fa-list me-2"></i>View All Notifications
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .notification-item-widget {
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .notification-item-widget:hover {
+        background-color: rgba(0, 137, 123, 0.08) !important;
+    }
+    
+    .notification-item-widget.unread-item {
+        border-left: 4px solid #00897b;
+    }
+    
+    .notification-widget {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    .notification-widget::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .notification-widget::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+    
+    .notification-widget::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 3px;
+    }
+    
+    .notification-widget::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+</style>
