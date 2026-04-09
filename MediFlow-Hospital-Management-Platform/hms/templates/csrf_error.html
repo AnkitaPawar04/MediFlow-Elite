@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block title %}CSRF Verification Failed - MediFlow{% endblock %}
+
+{% block content %}
+<style>
+    .error-container {
+        max-width: 500px;
+        margin: 4rem auto;
+        padding: 2rem;
+        background: linear-gradient(135deg, #FFEBEE 0%, #FCE4EC 100%);
+        border-left: 5px solid #C62828;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(198, 40, 40, 0.1);
+    }
+
+    .error-icon {
+        font-size: 3rem;
+        color: #C62828;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+
+    .error-title {
+        font-size: 1.5rem;
+        color: #C62828;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+
+    .error-message {
+        color: #616161;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+    }
+
+    .error-details {
+        background: rgba(198, 40, 40, 0.05);
+        padding: 1rem;
+        border-radius: 6px;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+        color: #424242;
+    }
+
+    .error-details strong {
+        color: #C62828;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    .btn-error {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-primary-error {
+        background: #00897B;
+        color: white;
+    }
+
+    .btn-primary-error:hover {
+        background: #00695C;
+        box-shadow: 0 2px 8px rgba(0, 137, 123, 0.2);
+    }
+
+    .btn-secondary-error {
+        background: #E0F2F1;
+        color: #00897B;
+        border: 1px solid #B2DFDB;
+    }
+
+    .btn-secondary-error:hover {
+        background: #B2DFDB;
+    }
+
+    .info-box {
+        background: #E3F2FD;
+        border-left: 4px solid #1976D2;
+        padding: 1rem;
+        border-radius: 4px;
+        margin-top: 1.5rem;
+        font-size: 0.85rem;
+        color: #1565C0;
+    }
+
+    .info-box strong {
+        color: #0D47A1;
+    }
+</style>
+
+<div class="container">
+    <div class="error-container">
+        <div class="error-icon">
+            <i class="fas fa-shield-alt"></i>
+        </div>
+
+        <h1 class="error-title">{{ title }}</h1>
+
+        <p class="error-message">
+            {{ message }}
+        </p>
+
+        <div class="error-details">
+            <strong>What happened?</strong>
+            <p style="margin: 0.5rem 0 0 0;">
+                The security token for this page has expired. This is a protective measure to prevent unauthorized access. 
+                Simply refresh the page and try your action again.
+            </p>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn-error btn-primary-error" onclick="window.history.back()">
+                <i class="fas fa-arrow-left"></i> Go Back
+            </button>
+            <button class="btn-error btn-primary-error" onclick="window.location.reload()">
+                <i class="fas fa-redo"></i> Refresh Page
+            </button>
+            <a href="{% url 'home' %}" class="btn-error btn-secondary-error">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div>
+
+        <div class="info-box">
+            <strong><i class="fas fa-lightbulb"></i> Tip:</strong>
+            If you continue to experience this issue:
+            <ul style="margin: 0.5rem 0 0 1.5rem; padding: 0;">
+                <li>Clear your browser cookies</li>
+                <li>Disable browser extensions</li>
+                <li>Try a different browser</li>
+                <li>Contact support if the problem persists</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

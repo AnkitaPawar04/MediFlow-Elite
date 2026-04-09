@@ -8,10 +8,16 @@ from doctors.models import AvailabilitySlot
 class Booking(models.Model):
     """Model for booking appointments."""
     
-    patient = models.OneToOneField(
+    PAYMENT_STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('completed', 'Completed'),
+        ('failed', 'Failed'),
+    ]
+    
+    patient = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
-        related_name='appointment',
+        related_name='bookings',
         limit_choices_to={'role': 'PATIENT'}
     )
     
@@ -27,6 +33,15 @@ class Booking(models.Model):
         on_delete=models.CASCADE,
         related_name='booking'
     )
+    
+    consultation_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    payment_status = models.CharField(
+        max_length=20,
+        choices=PAYMENT_STATUS_CHOICES,
+        default='pending',
+        help_text="Payment status for the consultation"
+    )
+    payment_id = models.CharField(max_length=100, blank=True, null=True, help_text="Razorpay payment ID")
     
     created_at = models.DateTimeField(auto_now_add=True)
     reminder_sent_24h = models.BooleanField(default=False, help_text="Whether 24-hour reminder has been sent")
@@ -47,6 +62,7 @@ class Booking(models.Model):
         """Validate booking."""
         if not self.slot.can_be_booked():
             raise ValidationError("This slot cannot be booked.")
-        
-        if Booking.objects.filter(patient=self.patient).exists():
-            raise ValidationError("Patient can only have one booking.")
+    
+    def is_paid(self):
+        """Check if booking is paid."""
+        return self.payment_status == 'completed'

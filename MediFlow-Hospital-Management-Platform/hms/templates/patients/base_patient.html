@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Patient Dashboard - MediFlow{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-teal: #00897B;
+            --secondary-teal: #00695C;
+            --accent-teal: #4DB6AC;
+            --background: #F7FAFA;
+            --card-bg: #FFFFFF;
+            --text-color: #263238;
+            --text-light: #546E7A;
+            --success: #2E7D32;
+            --danger: #C62828;
+            --warning: #F57C00;
+            --border-color: #B2DFDB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--background);
+            color: var(--text-color);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--primary-teal);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            overflow-y: auto;
+            box-shadow: 2px 0 8px rgba(0, 137, 123, 0.15);
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.5rem;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .sidebar-header p {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin: 0.5rem 0 0 0;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 1rem 0;
+        }
+
+        .sidebar-menu li {
+            margin: 0;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .sidebar-menu a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding-left: 2rem;
+        }
+
+        .sidebar-menu a.active {
+            background: var(--secondary-teal);
+            color: white;
+            border-left: 4px solid var(--accent-teal);
+        }
+
+        .sidebar-menu i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            padding: 1.5rem;
+            border-top: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 2rem;
+        }
+
+        /* Navbar */
+        .navbar-patient {
+            background: white;
+            border-bottom: 2px solid var(--border-color);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar-patient h1 {
+            font-size: 1.5rem;
+            color: var(--primary-teal);
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .logout-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: #B71C1C;
+        }
+
+        /* Cards & Content */
+        .patient-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .patient-card h2 {
+            color: var(--primary-teal);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .patient-card h3 {
+            color: var(--primary-teal);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        /* Statistics Cards */
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-teal);
+            margin: 0.5rem 0;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        /* Grid Layout */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Table Styling */
+        .table-patient {
+            background: var(--card-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .table-patient thead {
+            background: var(--primary-teal);
+            color: white;
+        }
+
+        .table-patient thead th {
+            border: none;
+            padding: 1rem;
+            font-weight: 600;
+        }
+
+        .table-patient tbody td {
+            padding: 1rem;
+            border-color: var(--border-color);
+            vertical-align: middle;
+        }
+
+        .table-patient tbody tr:hover {
+            background: #f5f5f5;
+        }
+
+        /* Doctor Card */
+        .doctor-listing-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .doctor-listing-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .doctor-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--primary-teal);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+        }
+
+        .doctor-info h4 {
+            color: var(--primary-teal);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .doctor-info p {
+            color: var(--text-light);
+            margin: 0.3rem 0;
+            font-size: 0.9rem;
+        }
+
+        /* Buttons */
+        .btn-patient {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary-patient {
+            background: var(--primary-teal);
+            color: white;
+        }
+
+        .btn-primary-patient:hover {
+            background: var(--secondary-teal);
+            color: white;
+        }
+
+        .btn-success-patient {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success-patient:hover {
+            background: #1B5E20;
+            color: white;
+        }
+
+        .btn-warning-patient {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-warning-patient:hover {
+            background: #E65100;
+            color: white;
+        }
+
+        .btn-danger-patient {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger-patient:hover {
+            background: #B71C1C;
+            color: white;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        /* Badges */
+        .badge-status {
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .badge-confirmed {
+            background: #E8F5E9;
+            color: var(--success);
+        }
+
+        .badge-pending {
+            background: #FFF3E0;
+            color: var(--warning);
+        }
+
+        .badge-cancelled {
+            background: #FFEBEE;
+            color: var(--danger);
+        }
+
+        /* Messages */
+        .messages {
+            margin-bottom: 1.5rem;
+        }
+
+        .alert-custom {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid;
+        }
+
+        .alert-success {
+            background: #E8F5E9;
+            color: var(--success);
+            border-left-color: var(--success);
+        }
+
+        .alert-warning {
+            background: #FFF3E0;
+            color: var(--warning);
+            border-left-color: var(--warning);
+        }
+
+        .alert-danger {
+            background: #FFEBEE;
+            color: var(--danger);
+            border-left-color: var(--danger);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .main-content {
+                margin-left: 200px;
+                padding: 1rem;
+            }
+
+            .stat-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn-patient {
+                width: 100%;
+            }
+
+            .doctor-listing-card {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .navbar-patient {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .stat-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Content Container & Animation */
+        .content-container {
+            padding: 2rem;
+            min-height: 500px;
+            background: var(--card-bg);
+            border-radius: 10px;
+            margin: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .loading-spinner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 3rem;
+            color: var(--primary-teal);
+            font-size: 1.1rem;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border-color);
+            border-top-color: var(--primary-teal);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Improved Spacing for Cards & Headers */
+        .content-container h2,
+        .content-container h3 {
+            margin-top: 2rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+            font-weight: 600;
+        }
+
+        .content-container h2:first-child,
+        .content-container h3:first-child {
+            margin-top: 0;
+        }
+
+        .patient-card h2 {
+            margin-bottom: 1.5rem;
+        }
+
+        .patient-card h3 {
+            margin-bottom: 1.2rem;
+        }
+
+        .patient-card p {
+            margin-bottom: 0.75rem;
+            line-height: 1.6;
+        }
+
+        /* Action Buttons Spacing */
+        .action-buttons {
+            margin-bottom: 2rem;
+            gap: 1rem;
+        }
+
+        .btn-patient {
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Table Styling */
+        .table-patient {
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .table-patient table {
+            margin-bottom: 0;
+        }
+
+        .table-patient tbody tr:hover {
+            background-color: rgba(0, 137, 123, 0.02);
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>🏥 MediFlow</h2>
+            <p>Patient Portal</p>
+        </div>
+
+        <ul class="sidebar-menu">
+            <li><a href="#" data-page="dashboard" class="sidebar-link active" data-url="{% url 'patient_dashboard' %}">
+                <i class="fas fa-home"></i> Dashboard
+            </a></li>
+            <li><a href="#" data-page="find-doctors" class="sidebar-link" data-url="{% url 'view_doctors' %}">
+                <i class="fas fa-search"></i> Find Doctors
+            </a></li>
+            <li><a href="#" data-page="my-bookings" class="sidebar-link" data-url="{% url 'my_bookings' %}">
+                <i class="fas fa-calendar-check"></i> My Bookings
+            </a></li>
+            <li><a href="#" data-page="my-profile" class="sidebar-link" data-url="{% url 'patient_profile' %}">
+                <i class="fas fa-user-circle"></i> My Profile
+            </a></li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <i class="fas fa-user" style="font-size: 1.2rem;"></i>
+                <div>
+                    <div style="font-weight: 600;">{{ user.get_full_name }}</div>
+                    <div style="font-size: 0.8rem; opacity: 0.7;">{{ user.email }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Navbar -->
+        <div class="navbar-patient">
+            <h1>{% block navbar_title %}Patient Dashboard{% endblock %}</h1>
+            <div class="navbar-actions">
+                <form action="{% url 'logout' %}" method="POST" style="margin: 0;" onsubmit="return confirm('Are you sure you want to logout?');">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="alert-custom alert-{{ message.tags|default:'warning' }}">
+                    <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'danger' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Dynamic Content Container -->
+        <div id="content-container" class="content-container">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Handle sidebar link clicks
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const url = this.getAttribute('data-url');
+                const page = this.getAttribute('data-page');
+                
+                // Remove active class from all sidebar links
+                document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+                
+                // Add active class to clicked link (in sidebar)
+                document.querySelector('.sidebar .sidebar-link[data-page="' + page + '"]').classList.add('active');
+                
+                // Load content
+                loadContent(url, page);
+            });
+        });
+
+        function loadContent(url, page) {
+            const container = document.getElementById('content-container');
+            
+            // Show loading spinner
+            container.innerHTML = '<div class="loading-spinner"><div class="spinner"></div>Loading...</div>';
+            
+            // Fetch content via AJAX
+            fetch(url + (url.includes('?') ? '&' : '?') + 'ajax=1', {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.text())
+            .then(html => {
+                container.innerHTML = html;
+                
+                // Update navbar title based on page
+                const titles = {
+                    'dashboard': 'Patient Dashboard',
+                    'find-doctors': 'Find Doctors',
+                    'my-bookings': 'My Bookings',
+                    'my-profile': 'My Profile'
+                };
+                document.querySelector('.navbar-patient h1').textContent = titles[page] || 'Dashboard';
+                
+                // Attach event handlers to new content
+                attachFormHandlers();
+                attachLinkHandlers();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                container.innerHTML = '<div class="alert-custom alert-danger"><i class="fas fa-exclamation-circle"></i> Error loading content. Please try again.</div>';
+            });
+        }
+
+        function attachFormHandlers() {
+            // Handle form submissions via AJAX
+            document.querySelectorAll('#content-container form').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(this);
+                    const url = this.getAttribute('action');
+                    
+                    fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: formData
+                    })
+                    .then(response => response.text())
+                    .then(html => {
+                        // Check if response contains error message or success
+                        if (html.includes('alert-danger') || html.includes('errorlist')) {
+                            document.getElementById('content-container').innerHTML = html;
+                            attachFormHandlers();
+                        } else {
+                            // Form submitted successfully, reload the current page
+                            document.getElementById('content-container').innerHTML = '<div class="alert-custom alert-success"><i class="fas fa-check-circle"></i> Success! Reloading...</div>';
+                            setTimeout(() => {
+                                loadContent('{% url "patient_dashboard" %}?ajax=1', 'dashboard');
+                                document.querySelector('.sidebar .sidebar-link[data-page="dashboard"]').classList.add('active');
+                            }, 1500);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        document.getElementById('content-container').innerHTML = '<div class="alert-custom alert-danger"><i class="fas fa-exclamation-circle"></i> Error submitting form. Please try again.</div>';
+                    });
+                });
+            });
+        }
+
+        function attachLinkHandlers() {
+            // Re-attach sidebar link handlers to new content
+            document.querySelectorAll('#content-container [data-url]').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const url = this.getAttribute('data-url');
+                    const page = this.getAttribute('data-page') || 'dashboard';
+                    
+                    // Remove active class from all sidebar links (if page matches a sidebar page)
+                    if (['dashboard', 'find-doctors', 'my-bookings', 'my-profile'].includes(page)) {
+                        document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+                        
+                        // Add active class to corresponding sidebar link
+                        const sidebarLink = document.querySelector('.sidebar .sidebar-link[data-page="' + page + '"]');
+                        if (sidebarLink) {
+                            sidebarLink.classList.add('active');
+                        }
+                    }
+                    
+                    // Load content
+                    loadContent(url, page);
+                });
+            });
+        }
+
+        // Load initial dashboard content when page loads
+        window.addEventListener('DOMContentLoaded', function() {
+            // Attach handlers to initial sidebar links
+            document.querySelectorAll('.sidebar-menu .sidebar-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const url = this.getAttribute('data-url');
+                    const page = this.getAttribute('data-page');
+                    
+                    // Remove active class from all sidebar links
+                    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+                    
+                    // Add active class to clicked link
+                    this.classList.add('active');
+                    
+                    // Load content
+                    loadContent(url, page);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

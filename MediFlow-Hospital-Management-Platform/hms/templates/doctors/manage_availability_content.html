@@ -1,0 +1,102 @@
+<div class="doctor-card">
+    <h2><i class="fas fa-calendar-alt"></i> Manage Availability Slots</h2>
+    <p style="color: #546E7A; margin-bottom: 1.5rem;">View and manage your appointment availability</p>
+    <a href="#" class="btn-doctor btn-success-doctor sidebar-link" data-page="add-availability" data-url="{% url 'create_availability' %}" style="margin-bottom: 1.5rem; display: inline-block;">
+        <i class="fas fa-plus"></i> Add New Slot
+    </a>
+    
+    {% if slots %}
+    <div style="overflow-x: auto;">
+        <div class="table-doctor">
+            <table style="width: 100%; margin: 0;">
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-calendar"></i> Date</th>
+                        <th><i class="fas fa-clock"></i> Time</th>
+                        <th><i class="fas fa-check"></i> Status</th>
+                        <th><i class="fas fa-tools"></i> Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for slot in slots %}
+                    <tr>
+                        <td><strong>{{ slot.date|date:"M d, Y" }}</strong></td>
+                        <td>{{ slot.start_time|time:"H:i" }} – {{ slot.end_time|time:"H:i" }}</td>
+                        <td>
+                            {% if slot.is_booked %}
+                                <span class="badge-status badge-active" style="background: #E8F5E9; color: #2E7D32;">
+                                    <i class="fas fa-check-circle"></i> Booked
+                                </span>
+                            {% else %}
+                                <span class="badge-status badge-inactive" style="background: #E3F2FD; color: #1565C0;">
+                                    <i class="fas fa-clock"></i> Available
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if not slot.is_booked %}
+                            <form method="post" action="{% url 'delete_availability' slot.id %}?ajax=1" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-doctor btn-danger-doctor delete-btn" data-slot-id="{{ slot.id }}" onclick="return confirm('Delete this slot?');">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </form>
+                            {% else %}
+                            <span style="color: #546E7A; font-size: 0.9rem;">Cannot delete booked slot</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 3rem; color: var(--text-light);">
+        <i class="fas fa-calendar-check" style="font-size: 2.5rem; margin-bottom: 1rem; color: #B2DFDB;"></i>
+        <p>No availability slots created yet. <a href="#" class="sidebar-link" data-page="add-availability" data-url="{% url 'create_availability' %}">Create one now</a></p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Handle delete form submissions via AJAX
+    document.querySelectorAll('.doctor-card form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const url = this.getAttribute('action');
+            
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            })
+            .then(response => response.text())
+            .then(html => {
+                // Update the manage_availability content with the new slots list
+                document.getElementById('content-container').innerHTML = html;
+                // Show success message
+                const successDiv = document.createElement('div');
+                successDiv.className = 'alert-custom alert-success';
+                successDiv.style.position = 'fixed';
+                successDiv.style.top = '100px';
+                successDiv.style.right = '20px';
+                successDiv.style.zIndex = '1000';
+                successDiv.innerHTML = '<i class="fas fa-check-circle"></i> Slot deleted successfully!';
+                document.body.appendChild(successDiv);
+                setTimeout(() => successDiv.remove(), 3000);
+                // Re-attach handlers
+                attachFormHandlers();
+                attachLinkHandlers();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error deleting slot. Please try again.');
+            });
+        });
+    });
+</script>

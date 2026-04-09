@@ -1,0 +1,144 @@
+<!-- Bookings List -->
+{% if bookings %}
+<div class="patient-card">
+    <h3><i class="fas fa-calendar-check"></i> All Your Bookings</h3>
+    
+    <div class="table-patient" style="overflow-x: auto;">
+        <table style="width: 100%;">
+            <thead>
+                <tr>
+                    <th><i class="fas fa-user-md"></i> Doctor Name</th>
+                    <th><i class="fas fa-calendar"></i> Date</th>
+                    <th><i class="fas fa-clock"></i> Time</th>
+                    <th><i class="fas fa-rupee-sign"></i> Fee</th>
+                    <th><i class="fas fa-credit-card"></i> Payment</th>
+                    <th><i class="fas fa-cog"></i> Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                <tr>
+                    <td>{{ booking.doctor.get_full_name }}</td>
+                    <td>{{ booking.slot.date|date:"M d, Y" }}</td>
+                    <td>{{ booking.slot.start_time|time:"H:i" }} – {{ booking.slot.end_time|time:"H:i" }}</td>
+                    <td><strong>₹{{ booking.consultation_fee }}</strong></td>
+                    <td>
+                        {% if booking.payment_status == 'completed' %}
+                        <span style="background: #C8E6C9; color: #1B5E20; padding: 0.35rem 0.75rem; border-radius: 20px; font-weight: 600; font-size: 0.85rem;">
+                            <i class="fas fa-check-circle"></i> Paid
+                        </span>
+                        {% elif booking.payment_status == 'pending' %}
+                        <span style="background: #FFE0B2; color: #E65100; padding: 0.35rem 0.75rem; border-radius: 20px; font-weight: 600; font-size: 0.85rem;">
+                            <i class="fas fa-clock"></i> Pending
+                        </span>
+                        {% else %}
+                        <span style="background: #FFCCBC; color: #BF360C; padding: 0.35rem 0.75rem; border-radius: 20px; font-weight: 600; font-size: 0.85rem;">
+                            <i class="fas fa-times-circle"></i> Failed
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            {% if booking.payment_status != 'completed' %}
+                            <a href="{% url 'initiate_payment' booking.id %}" 
+                               class="btn-patient btn-success-patient" 
+                               style="padding: 0.35rem 0.75rem; font-size: 0.85rem; text-decoration: none; display: inline-block;"
+                               data-url="{% url 'initiate_payment' booking.id %}"
+                               onclick="event.preventDefault(); loadContent('{% url 'initiate_payment' booking.id %}?ajax=1', 'payment'); return false;">
+                                <i class="fas fa-credit-card"></i> Pay
+                            </a>
+                            {% endif %}
+                            
+                            {% if booking.slot.date >= today %}
+                            <form method="post" action="{% url 'cancel_booking' %}" style="display: inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="booking_id" value="{{ booking.id }}">
+                                <button type="submit" class="btn-patient btn-danger-patient" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" onclick="return confirm('Are you sure?');">
+                                    <i class="fas fa-times"></i> Cancel
+                                </button>
+                            </form>
+                            {% else %}
+                            <span style="color: #546E7A; font-size: 0.85rem; padding: 0.35rem 0.75rem;">Completed</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="patient-card" style="border-left: 5px solid #00897B; background: linear-gradient(135deg, #F1F8F7 0%, #FFFFFF 100%); text-align: center; padding: 3rem 2rem;">
+    <i class="fas fa-calendar-times" style="font-size: 3rem; color: #00897B; margin-bottom: 1rem;"></i>
+    <h3 style="color: #00897B; margin-bottom: 0.5rem;">No Bookings Yet</h3>
+    <p style="color: #546E7A; margin-bottom: 1.5rem;">
+        You haven't made any bookings yet. Start exploring our available doctors and book your appointment.
+    </p>
+    <a href="{% url 'view_slots' %}" class="btn-patient btn-primary-patient" data-page="find-doctors" data-url="{% url 'view_slots' %}">
+        <i class="fas fa-search"></i> Find Doctors & Book
+    </a>
+</div>
+{% endif %}
+
+<style>
+    .table-patient {
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 137, 123, 0.08);
+    }
+
+    .table-patient table {
+        border-collapse: collapse;
+    }
+
+    .table-patient thead {
+        background: linear-gradient(135deg, #00897B 0%, #00695C 100%);
+        color: white;
+    }
+
+    .table-patient thead th {
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.9rem;
+        border: none;
+    }
+
+    .table-patient tbody tr {
+        border-bottom: 1px solid #E0F2F1;
+        transition: background-color 0.2s;
+    }
+
+    .table-patient tbody tr:hover {
+        background: #F7FAFA;
+    }
+
+    .table-patient tbody tr:last-child {
+        border-bottom: none;
+    }
+    
+    .table-patient tbody td {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+    
+    .btn-patient {
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        text-decoration: none;
+        display: inline-block;
+        font-weight: 600;
+        transition: all 0.3s;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .btn-patient:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+</style>
+
+</style>

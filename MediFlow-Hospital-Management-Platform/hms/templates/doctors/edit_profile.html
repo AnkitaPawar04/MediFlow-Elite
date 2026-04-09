@@ -1,0 +1,82 @@
+{% extends 'doctors/base_doctor.html' %}
+
+{% block title %}Edit Profile - MediFlow{% endblock %}
+
+{% block navbar_title %}Edit Profile{% endblock %}
+
+{% block content %}
+<div class="doctor-card">
+    <h2><i class="fas fa-user-edit"></i> Edit Doctor Profile</h2>
+    <p style="color: #546E7A; margin-bottom: 2.5rem; font-size: 0.95rem;">Update your profile information</p>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }}</label>
+            {{ form.first_name }}
+            {% if form.first_name.errors %}
+            <div style="color: #C62828; margin-top: 0.5rem; font-size: 0.9rem;">{{ form.first_name.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }}</label>
+            {{ form.last_name }}
+            {% if form.last_name.errors %}
+            <div style="color: #C62828; margin-top: 0.5rem; font-size: 0.9rem;">{{ form.last_name.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+            {{ form.email }}
+            {% if form.email.errors %}
+            <div style="color: #C62828; margin-top: 0.5rem; font-size: 0.9rem;">{{ form.email.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+            {{ form.username }}
+            <small style="color: #546E7A;">Username cannot be changed</small>
+        </div>
+        
+        {% if form.non_field_errors %}
+        <div style="background: #FFEBEE; color: #C62828; padding: 1.25rem; border-radius: 6px; margin-bottom: 2rem; border-left: 4px solid #C62828;">
+            {% for error in form.non_field_errors %}
+                <div>{{ error }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <div style="display: flex; gap: 1rem;">
+            <button type="submit" class="btn-doctor btn-success-doctor" style="flex: 1;">
+                <i class="fas fa-save"></i> Save Changes
+            </button>
+            <a href="{% url 'doctor_dashboard' %}" class="btn-doctor btn-primary-doctor" style="flex: 1; text-align: center;">
+                <i class="fas fa-times"></i> Cancel
+            </a>
+        </div>
+    </form>
+    
+    <!-- Current Profile Info -->
+    <div style="margin-top: 3rem; padding-top: 2.5rem; border-top: 1px solid #B2DFDB;">
+        <h3 style="margin-bottom: 1.5rem; font-size: 1.1rem;">Current Information</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
+            <div>
+                <label style="font-weight: 600; color: #546E7A; font-size: 0.85rem;">Full Name</label>
+                <p style="margin-top: 0.5rem; font-size: 1rem;">{{ doctor.get_full_name }}</p>
+            </div>
+            <div>
+                <label style="font-weight: 600; color: #546E7A; font-size: 0.85rem;">Email</label>
+                <p style="margin-top: 0.5rem; font-size: 1rem;">{{ doctor.email }}</p>
+            </div>
+            <div>
+                <label style="font-weight: 600; color: #546E7A; font-size: 0.85rem;">Username</label>
+                <p style="margin-top: 0.5rem; font-size: 1rem;">{{ doctor.username }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

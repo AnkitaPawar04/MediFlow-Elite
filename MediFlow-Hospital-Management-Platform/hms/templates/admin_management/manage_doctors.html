@@ -1,0 +1,264 @@
+{% extends 'admin_management/base_admin.html' %}
+
+{% block title %}Doctor Management - MediFlow{% endblock %}
+{% block page_title %}Doctor Management & Approvals{% endblock %}
+
+{% block content %}
+<style>
+    .doctor-section {
+        background: #00897B;
+        color: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+    }
+
+    .doctor-section h3 {
+        margin: 0 0 1rem 0;
+        font-size: 1.2rem;
+    }
+
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+
+    .stat-box {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 1rem;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .stat-box-number {
+        font-size: 2rem;
+        font-weight: bold;
+        margin: 0.5rem 0;
+    }
+
+    .stat-box-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .filter-dropdown {
+        display: inline-block;
+    }
+
+    .doctor-card {
+        background: white;
+        border: 1px solid #B2DFDB;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: box-shadow 0.2s;
+    }
+
+    .doctor-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 137, 123, 0.15);
+    }
+
+    .doctor-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 1rem;
+    }
+
+    .doctor-info-block {
+        flex: 1;
+    }
+
+    .doctor-name-main {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #263238;
+        margin-bottom: 0.25rem;
+    }
+
+    .doctor-email-main {
+        font-size: 0.9rem;
+        color: #546E7A;
+        margin-bottom: 0.5rem;
+    }
+
+    .doctor-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin: 1rem 0;
+        padding: 1rem 0;
+        border-top: 1px solid #E0F2F1;
+        border-bottom: 1px solid #E0F2F1;
+    }
+
+    .detail-item {
+        font-size: 0.9rem;
+    }
+
+    .detail-label {
+        color: #546E7A;
+        font-weight: 500;
+    }
+
+    .detail-value {
+        color: #263238;
+        margin-top: 0.25rem;
+    }
+
+    .doctor-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+</style>
+
+<div class="container-fluid mt-4">
+    <!-- Doctor Statistics Section -->
+    <div class="doctor-section">
+        <h3>
+            <i class="fas fa-user-md"></i> Doctor Profiles
+        </h3>
+
+        <div class="stats-row">
+            <div class="stat-box">
+                <div style="font-size: 1.5rem;">⏳</div>
+                <div class="stat-box-number" style="color: #FFA726;">{{ pending_count }}</div>
+                <div class="stat-box-label">Pending</div>
+            </div>
+
+            <div class="stat-box">
+                <div style="font-size: 1.5rem;">✓</div>
+                <div class="stat-box-number" style="color: #66BB6A;">{{ approved_count }}</div>
+                <div class="stat-box-label">Approved</div>
+            </div>
+
+            <div class="stat-box">
+                <div style="font-size: 1.5rem;">⚠️</div>
+                <div class="stat-box-number" style="color: #EF5350;">{{ suspended_count }}</div>
+                <div class="stat-box-label">Suspended</div>
+            </div>
+
+            <div class="stat-box">
+                <div style="font-size: 1.5rem;">📊</div>
+                <div class="stat-box-number">{{ total_count }}</div>
+                <div class="stat-box-label">Total</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <form method="get" class="filter-row">
+            <div class="filter-group">
+                <label for="status">All Status</label>
+                <select id="status" name="status" class="form-select">
+                    <option value="">All Status</option>
+                    <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>Approved</option>
+                    <option value="suspended" {% if status_filter == 'suspended' %}selected{% endif %}>Suspended</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <button type="submit" class="btn btn-view" style="width: 100%;">
+                    <i class="fas fa-filter"></i> Filter
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Doctors List -->
+    <div class="admin-card">
+        {% for approval in doctor_approvals %}
+        <div class="doctor-card">
+            <div class="doctor-header">
+                <div class="doctor-info-block">
+                    <div class="doctor-name-main">{{ approval.doctor.get_full_name }}</div>
+                    <div class="doctor-email-main">{{ approval.doctor.email }}</div>
+                    <div>
+                        {% if approval.status == 'pending' %}
+                        <span class="badge-status badge-pending">
+                            <i class="fas fa-hourglass-half"></i> Pending
+                        </span>
+                        {% elif approval.status == 'approved' %}
+                        <span class="badge-status badge-approved">
+                            <i class="fas fa-check-circle"></i> Approved
+                        </span>
+                        {% else %}
+                        <span class="badge-status badge-suspended">
+                            <i class="fas fa-ban"></i> Suspended
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="doctor-details">
+                <div class="detail-item">
+                    <div class="detail-label">Specialization</div>
+                    <div class="detail-value">{{ approval.specialization|default:"Not specified" }}</div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="detail-label">Department</div>
+                    <div class="detail-value">{{ approval.department|default:"Not specified" }}</div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="detail-label">Fee</div>
+                    <div class="detail-value">${{ approval.fee }}</div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="detail-label">Registered</div>
+                    <div class="detail-value">{{ approval.created_at|date:"M d, Y" }}</div>
+                </div>
+            </div>
+
+            <div class="doctor-actions">
+                {% if approval.status == 'pending' %}
+                <form method="post" action="{% url 'admin:doctor_action' approval.id 'approve' %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-admin btn-approve">
+                        <i class="fas fa-check"></i> Approve
+                    </button>
+                </form>
+
+                <form method="post" action="{% url 'admin:doctor_action' approval.id 'suspend' %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-admin btn-suspend">
+                        <i class="fas fa-ban"></i> Suspend
+                    </button>
+                </form>
+
+                {% elif approval.status == 'approved' %}
+                <form method="post" action="{% url 'admin:doctor_action' approval.id 'suspend' %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-admin btn-suspend">
+                        <i class="fas fa-ban"></i> Suspend
+                    </button>
+                </form>
+
+                {% else %}
+                <form method="post" action="{% url 'admin:doctor_action' approval.id 'approve' %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-admin btn-approve">
+                        <i class="fas fa-check"></i> Reactivate
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div style="text-align: center; padding: 3rem; color: #546E7A;">
+            <i class="fas fa-inbox" style="font-size: 2.5rem; color: #00897B; margin-bottom: 1rem; display: block;"></i>
+            <h3>No doctors found</h3>
+            <p>No doctors match your filter criteria.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,134 @@
+<!-- Profile Card -->
+<div class="patient-card" style="border-left: 5px solid #00897B;">
+    <h3 style="margin-bottom: 2rem;">
+        <i class="fas fa-user-circle"></i> Profile Information
+    </h3>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+        <!-- Left Column -->
+        <div>
+            <div style="margin-bottom: 1.5rem;">
+                <label style="color: #546E7A; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">First Name</label>
+                <p style="font-size: 1.1rem; color: #263238; margin-top: 0.25rem;">{{ patient.first_name }}</p>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="color: #546E7A; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Email Address</label>
+                <p style="font-size: 1.1rem; color: #263238; margin-top: 0.25rem;">{{ patient.email }}</p>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="color: #546E7A; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Account Type</label>
+                <p style="font-size: 1.1rem; color: #263238; margin-top: 0.25rem;">
+                    <span style="background: #C8E6C9; color: #1B5E20; padding: 0.35rem 0.75rem; border-radius: 20px; font-weight: 600;">Patient</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div>
+            <div style="margin-bottom: 1.5rem;">
+                <label style="color: #546E7A; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Last Name</label>
+                <p style="font-size: 1.1rem; color: #263238; margin-top: 0.25rem;">{{ patient.last_name }}</p>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="color: #546E7A; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Member Since</label>
+                <p style="font-size: 1.1rem; color: #263238; margin-top: 0.25rem;">{{ patient.date_joined|date:"M d, Y" }}</p>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="color: #546E7A; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Account Status</label>
+                <p style="font-size: 1.1rem; color: #263238; margin-top: 0.25rem;">
+                    {% if patient.is_active %}
+                    <span style="background: #C8E6C9; color: #1B5E20; padding: 0.35rem 0.75rem; border-radius: 20px; font-weight: 600;">Active</span>
+                    {% else %}
+                    <span style="background: #FFCCBC; color: #BF360C; padding: 0.35rem 0.75rem; border-radius: 20px; font-weight: 600;">Inactive</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Account Statistics -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+    <div class="patient-card" style="text-align: center; border-left: 5px solid #2E7D32;">
+        <div style="font-size: 2rem; color: #2E7D32; margin-bottom: 0.5rem;">
+            <i class="fas fa-calendar-check"></i>
+        </div>
+        <p style="color: #546E7A; font-size: 0.85rem; margin-bottom: 0.25rem;">Total Bookings</p>
+        <p style="font-size: 1.8rem; font-weight: 600; color: #263238;">{{ patient.booking_set.count }}</p>
+    </div>
+
+    <div class="patient-card" style="text-align: center; border-left: 5px solid #1976D2;">
+        <div style="font-size: 2rem; color: #1976D2; margin-bottom: 0.5rem;">
+            <i class="fas fa-clock"></i>
+        </div>
+        <p style="color: #546E7A; font-size: 0.85rem; margin-bottom: 0.25rem;">Upcoming</p>
+        <p style="font-size: 1.8rem; font-weight: 600; color: #263238;">
+            {% with upcoming=patient.booking_set.count %}
+            {{ upcoming }}
+            {% endwith %}
+        </p>
+    </div>
+
+    <div class="patient-card" style="text-align: center; border-left: 5px solid #F57C00;">
+        <div style="font-size: 2rem; color: #F57C00; margin-bottom: 0.5rem;">
+            <i class="fas fa-history"></i>
+        </div>
+        <p style="color: #546E7A; font-size: 0.85rem; margin-bottom: 0.25rem;">Member For</p>
+        <p style="font-size: 1.8rem; font-weight: 600; color: #263238;">
+            {% with days=patient.date_joined|timesince %}
+            {{ days }}
+            {% endwith %}
+        </p>
+    </div>
+</div>
+
+<!-- Security Section -->
+<div class="patient-card" style="border-left: 5px solid #C62828;">
+    <h3 style="margin-bottom: 1.5rem; color: #C62828;">
+        <i class="fas fa-lock"></i> Security
+    </h3>
+
+    <div style="margin-bottom: 1.5rem;">
+        <label style="color: #546E7A; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Two-Factor Authentication</label>
+        <p style="font-size: 0.95rem; color: #546E7A; margin-top: 0.5rem;">
+            {% if patient.is_2fa_enabled %}
+            <span style="background: #C8E6C9; color: #1B5E20; padding: 0.35rem 0.75rem; border-radius: 20px; font-weight: 600;">Enabled</span>
+            {% else %}
+            <span style="background: #FFE0B2; color: #E65100; padding: 0.35rem 0.75rem; border-radius: 20px; font-weight: 600;">Disabled</span>
+            {% endif %}
+        </p>
+    </div>
+
+    <p style="color: #546E7A; font-size: 0.9rem;">
+        <i class="fas fa-info-circle"></i> Enable two-factor authentication to add an extra layer of security to your account.
+    </p>
+</div>
+
+<!-- Quick Links -->
+<div style="margin-top: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+    <a href="{% url 'my_bookings' %}" class="btn-patient btn-primary-patient" data-page="my-bookings" data-url="{% url 'my_bookings' %}">
+        <i class="fas fa-calendar-check"></i> View All Bookings
+    </a>
+    <a href="{% url 'view_slots' %}" class="btn-patient btn-success-patient" data-page="find-doctors" data-url="{% url 'view_slots' %}">
+        <i class="fas fa-search"></i> Book New Appointment
+    </a>
+</div>
+
+<style>
+    .patient-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 137, 123, 0.08);
+        transition: all 0.3s;
+    }
+
+    .patient-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 137, 123, 0.12);
+    }
+</style>

@@ -1,0 +1,56 @@
+<div class="doctor-card">
+    <h2><i class="fas fa-plus-circle"></i> Create Availability Slot</h2>
+    <p style="color: #546E7A; margin-bottom: 2.5rem; font-size: 0.95rem;">Add a time slot when you're available for appointments</p>
+    
+    <form method="post" action="{% url 'create_availability' %}">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="{{ form.date.id_for_label }}">{{ form.date.label }}</label>
+            {{ form.date }}
+            {% if form.date.errors %}
+            <div style="color: #C62828; margin-top: 0.5rem; font-size: 0.9rem;">{{ form.date.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.start_time.id_for_label }}">{{ form.start_time.label }}</label>
+            {{ form.start_time }}
+            {% if form.start_time.errors %}
+            <div style="color: #C62828; margin-top: 0.5rem; font-size: 0.9rem;">{{ form.start_time.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.end_time.id_for_label }}">{{ form.end_time.label }}</label>
+            {{ form.end_time }}
+            {% if form.end_time.errors %}
+            <div style="color: #C62828; margin-top: 0.5rem; font-size: 0.9rem;">{{ form.end_time.errors }}</div>
+            {% endif %}
+        </div>
+        
+        {% if form.non_field_errors %}
+        <div style="background: #FFEBEE; color: #C62828; padding: 1.25rem; border-radius: 6px; margin-bottom: 2rem; border-left: 4px solid #C62828;">
+            {% for error in form.non_field_errors %}
+                <div>{{ error }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <div style="display: flex; gap: 1rem;">
+            <button type="submit" class="btn-doctor btn-success-doctor" style="flex: 1;">
+                <i class="fas fa-check"></i> Create Slot
+            </button>
+            <button type="button" class="btn-doctor btn-primary-doctor" style="flex: 1;" id="cancel-btn">
+                <i class="fas fa-times"></i> Cancel
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.getElementById('cancel-btn').addEventListener('click', function() {
+        loadContent('{% url 'doctor_dashboard' %}' + (location.search.includes('ajax=1') ? '' : '') + '?ajax=1', 'dashboard');
+        document.querySelector('.sidebar .sidebar-link[data-page="dashboard"]').classList.add('active');
+    });
+</script>

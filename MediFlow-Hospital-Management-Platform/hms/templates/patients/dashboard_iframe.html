@@ -1,0 +1,153 @@
+<!-- Quick Stats -->
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="stat-label">Total Bookings</div>
+        <div class="stat-number">{{ total_bookings }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Upcoming Appointments</div>
+        <div class="stat-number">{{ upcoming_count }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Completed Appointments</div>
+        <div class="stat-number">{{ completed_count }}</div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="action-buttons">
+    <a href="{% url 'view_doctors' %}" class="btn-patient btn-primary-patient" data-page="find-doctors" data-url="{% url 'view_doctors' %}">
+        <i class="fas fa-stethoscope"></i> Browse Doctors
+    </a>
+    <a href="{% url 'view_slots' %}" class="btn-patient btn-success-patient" data-page="find-doctors" data-url="{% url 'view_slots' %}">
+        <i class="fas fa-calendar-alt"></i> Find Appointments
+    </a>
+    <a href="{% url 'my_bookings' %}" class="btn-patient btn-warning-patient" data-page="my-bookings" data-url="{% url 'my_bookings' %}">
+        <i class="fas fa-bookmark"></i> My Bookings
+    </a>
+</div>
+
+<!-- Current Appointment Section -->
+{% if has_booking %}
+<div class="patient-card" style="border-left: 5px solid #2E7D32; background: linear-gradient(135deg, #F1F8F7 0%, #FFFFFF 100%);">
+    <h3 style="color: #2E7D32; margin-bottom: 1.5rem;">
+        <i class="fas fa-check-circle"></i> Your Current Appointment
+    </h3>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-bottom: 1.5rem;">
+        <div>
+            <p style="color: #546E7A; margin-bottom: 0.5rem; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">
+                <i class="fas fa-user-md"></i> Doctor
+            </p>
+            <p style="font-size: 1.1rem; font-weight: 600; color: #263238;">
+                {{ booking.doctor.get_full_name }}
+            </p>
+        </div>
+
+        <div>
+            <p style="color: #546E7A; margin-bottom: 0.5rem; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">
+                <i class="fas fa-calendar"></i> Date & Time
+            </p>
+            <p style="font-size: 1.1rem; font-weight: 600; color: #263238;">
+                {{ booking.slot.date|date:"M d, Y" }} at {{ booking.slot.start_time|time:"H:i" }}
+            </p>
+        </div>
+
+        <div>
+            <p style="color: #546E7A; margin-bottom: 0.5rem; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">
+                <i class="fas fa-rupee-sign"></i> Consultation Fee
+            </p>
+            <p style="font-size: 1.1rem; font-weight: 600; color: #263238;">
+                ₹{{ booking.consultation_fee }}
+            </p>
+        </div>
+    </div>
+    
+    <!-- Payment Status -->
+    <div style="background: white; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+            <div>
+                <p style="color: #546E7A; margin-bottom: 0.25rem; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">
+                    <i class="fas fa-credit-card"></i> Payment Status
+                </p>
+                <p style="font-size: 1rem; font-weight: 600; margin: 0;">
+                    {% if booking.payment_status == 'completed' %}
+                    <span style="color: #2E7D32;">
+                        <i class="fas fa-check-circle"></i> Paid
+                    </span>
+                    {% elif booking.payment_status == 'pending' %}
+                    <span style="color: #E65100;">
+                        <i class="fas fa-clock"></i> Pending Payment
+                    </span>
+                    {% else %}
+                    <span style="color: #BF360C;">
+                        <i class="fas fa-times-circle"></i> Payment Failed
+                    </span>
+                    {% endif %}
+                </p>
+            </div>
+            
+            {% if booking.payment_status != 'completed' %}
+            <a href="{% url 'initiate_payment' booking.id %}" 
+               class="btn-patient btn-success-patient"
+               style="text-decoration: none;"
+               data-url="{% url 'initiate_payment' booking.id %}"
+               onclick="event.preventDefault(); loadContent('{% url 'initiate_payment' booking.id %}?ajax=1', 'payment'); return false;">
+                <i class="fas fa-credit-card"></i> Complete Payment
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div style="display: flex; gap: 1rem;">
+        <form method="post" action="{% url 'cancel_booking' %}" style="flex: 1;">
+            {% csrf_token %}
+            <input type="hidden" name="booking_id" value="{{ booking.id }}">
+            <button type="submit" class="btn-patient btn-danger-patient" style="width: 100%;" onclick="return confirm('Are you sure you want to cancel this appointment?');">
+                <i class="fas fa-times"></i> Cancel Appointment
+            </button>
+        </form>
+    </div>
+</div>
+
+{% else %}
+<div class="patient-card" style="border-left: 5px solid #00897B; background: linear-gradient(135deg, #F1F8F7 0%, #FFFFFF 100%); text-align: center; padding: 3rem 2rem;">
+    <i class="fas fa-calendar-plus" style="font-size: 3rem; color: #00897B; margin-bottom: 1rem;"></i>
+    <h3 style="color: #00897B; margin-bottom: 0.5rem;">No Appointment Scheduled</h3>
+    <p style="color: #546E7A; margin-bottom: 1.5rem;">
+        You don't have any appointments booked yet. Start by browsing our available doctors and finding a convenient time slot.
+    </p>
+    <a href="{% url 'view_slots' %}" class="btn-patient btn-primary-patient" data-page="find-doctors" data-url="{% url 'view_slots' %}">
+        <i class="fas fa-search"></i> Find and Book an Appointment
+    </a>
+</div>
+{% endif %}
+
+<!-- Recent Bookings (if exists) -->
+{% if recent_bookings %}
+<div class="patient-card">
+    <h3><i class="fas fa-history"></i> Your Recent Bookings</h3>
+    <div class="table-patient">
+        <table style="width: 100%; margin: 0;">
+            <thead>
+                <tr>
+                    <th><i class="fas fa-user-md"></i> Doctor Name</th>
+                    <th><i class="fas fa-calendar"></i> Date</th>
+                    <th><i class="fas fa-clock"></i> Time</th>
+                    <th><i class="fas fa-tag"></i> Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in recent_bookings %}
+                <tr>
+                    <td><strong>{{ booking.doctor.get_full_name }}</strong></td>
+                    <td>{{ booking.slot.date|date:"M d, Y" }}</td>
+                    <td>{{ booking.slot.start_time|time:"H:i" }}</td>
+                    <td><span class="badge-status badge-confirmed">Booked</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}

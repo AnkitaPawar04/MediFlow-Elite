@@ -1,0 +1,134 @@
+{% extends 'admin_management/base_admin.html' %}
+
+{% block title %}System Logs - MediFlow{% endblock %}
+{% block page_title %}System Logs{% endblock %}
+
+{% block content %}
+<style>
+    .log-icon {
+        display: inline-block;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.85rem;
+        margin-right: 0.75rem;
+    }
+
+    .log-created { background: #2E7D32; }
+    .log-updated { background: #1976D2; }
+    .log-deleted { background: #C62828; }
+    .log-approved { background: #00897B; }
+    .log-suspended { background: #F57C00; }
+</style>
+
+<div class="container-fluid mt-4">
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <form method="get" class="filter-row">
+            <div class="filter-group">
+                <label for="action">Filter by Action</label>
+                <select id="action" name="action" class="form-select">
+                    <option value="">All Actions</option>
+                    <option value="user_created" {% if action_filter == 'user_created' %}selected{% endif %}>User Created</option>
+                    <option value="user_deleted" {% if action_filter == 'user_deleted' %}selected{% endif %}>User Deleted</option>
+                    <option value="user_updated" {% if action_filter == 'user_updated' %}selected{% endif %}>User Updated</option>
+                    <option value="doctor_approved" {% if action_filter == 'doctor_approved' %}selected{% endif %}>Doctor Approved</option>
+                    <option value="doctor_suspended" {% if action_filter == 'doctor_suspended' %}selected{% endif %}>Doctor Suspended</option>
+                    <option value="booking_created" {% if action_filter == 'booking_created' %}selected{% endif %}>Booking Created</option>
+                    <option value="booking_cancelled" {% if action_filter == 'booking_cancelled' %}selected{% endif %}>Booking Cancelled</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <button type="submit" class="btn btn-view" style="width: 100%;">
+                    <i class="fas fa-filter"></i> Filter
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Logs Table -->
+    <div class="admin-card">
+        <h2>
+            <i class="fas fa-server"></i> System Activity Log
+        </h2>
+
+        <div class="table-admin">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Action</th>
+                        <th>Description</th>
+                        <th>User</th>
+                        <th>Timestamp</th>
+                        <th>IP Address</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td>
+                            {% if 'created' in log.action %}
+                            <span class="log-icon log-created">
+                                <i class="fas fa-plus"></i>
+                            </span>
+                            {% elif 'updated' in log.action %}
+                            <span class="log-icon log-updated">
+                                <i class="fas fa-edit"></i>
+                            </span>
+                            {% elif 'deleted' in log.action %}
+                            <span class="log-icon log-deleted">
+                                <i class="fas fa-trash"></i>
+                            </span>
+                            {% elif 'approved' in log.action %}
+                            <span class="log-icon log-approved">
+                                <i class="fas fa-check"></i>
+                            </span>
+                            {% elif 'suspended' in log.action %}
+                            <span class="log-icon log-suspended">
+                                <i class="fas fa-ban"></i>
+                            </span>
+                            {% else %}
+                            <span class="log-icon" style="background: #546E7A;">
+                                <i class="fas fa-question"></i>
+                            </span>
+                            {% endif %}
+                            <span class="badge" style="background: #00897B; color: white;">
+                                {{ log.get_action_display }}
+                            </span>
+                        </td>
+                        <td>{{ log.description }}</td>
+                        <td>
+                            <strong>{{ log.user.email }}</strong>
+                            <br>
+                            <small style="color: #546E7A;">{{ log.user.get_full_name }}</small>
+                        </td>
+                        <td>
+                            <div>{{ log.timestamp|date:"M d, Y" }}</div>
+                            <small style="color: #546E7A;">{{ log.timestamp|date:"H:i:s" }}</small>
+                        </td>
+                        <td>
+                            <code style="background: #f5f5f5; padding: 0.25rem 0.5rem; border-radius: 4px;">
+                                {{ log.ip_address|default:"N/A" }}
+                            </code>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 2rem; color: #546E7A;">
+                            <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 0.5rem; display: block;"></i>
+                            No activity logs found
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

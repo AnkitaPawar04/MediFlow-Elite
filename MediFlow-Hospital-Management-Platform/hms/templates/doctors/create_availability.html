@@ -7,7 +7,7 @@
     <h2>Create Availability Slot</h2>
     <p style="color: #546E7A; margin-bottom: 2rem;">Add a time slot when you're available for appointments</p>
     
-    <form method="post">
+    <form method="post" action="{% url 'create_availability' %}"
         {% csrf_token %}
         
         <div class="form-group">

@@ -349,7 +349,7 @@
             {% if user.is_authenticated %}
                 <span style="margin-right: 2rem;">{{ user.email }}</span>
                 <a href="{% url 'patient_dashboard' %}">Dashboard</a>
-                <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                <form method="post" action="{% url 'logout' %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to logout?');">
                     {% csrf_token %}
                     <button type="submit" style="background: none; border: none; color: white; cursor: pointer; margin-left: 1rem;">Logout</button>
                 </form>

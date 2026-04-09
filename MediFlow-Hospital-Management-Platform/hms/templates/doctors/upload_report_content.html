@@ -1,0 +1,129 @@
+<div class="doctor-card">
+    <h2><i class="fas fa-file-upload"></i> Upload Patient Report</h2>
+    <p style="color: #546E7A; margin-bottom: 2.5rem; font-size: 0.95rem;">Add or update medical records for your patients</p>
+    
+    <form method="post" action="{% url 'upload_patient_report' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="{{ form.patient.id_for_label }}">{{ form.patient.label }}</label>
+            {{ form.patient }}
+            {% if form.patient.errors %}
+            <div style="color: #C62828; margin-top: 0.5rem; font-size: 0.9rem;">{{ form.patient.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.condition.id_for_label }}">{{ form.condition.label }}</label>
+            {{ form.condition }}
+            {% if form.condition.errors %}
+            <div style="color: #C62828; margin-top: 0.5rem; font-size: 0.9rem;">{{ form.condition.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+            {{ form.description }}
+            {% if form.description.errors %}
+            <div style="color: #C62828; margin-top: 0.5rem; font-size: 0.9rem;">{{ form.description.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="{{ form.diagnosis_date.id_for_label }}">{{ form.diagnosis_date.label }}</label>
+                {{ form.diagnosis_date }}
+                {% if form.diagnosis_date.errors %}
+                <div style="color: #C62828; margin-top: 0.5rem; font-size: 0.9rem;">{{ form.diagnosis_date.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="{{ form.status.id_for_label }}">{{ form.status.label }}</label>
+                {{ form.status }}
+                {% if form.status.errors %}
+                <div style="color: #C62828; margin-top: 0.5rem; font-size: 0.9rem;">{{ form.status.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.file_upload.id_for_label }}">{{ form.file_upload.label }}</label>
+            {{ form.file_upload }}
+            <small style="color: #546E7A;">Accepted formats: PDF, DOC, DOCX, JPG, PNG (Max 10 MB)</small>
+            {% if form.file_upload.errors %}
+            <div style="color: #C62828; margin-top: 0.5rem; font-size: 0.9rem;">{{ form.file_upload.errors }}</div>
+            {% endif %}
+        </div>
+        
+        {% if form.non_field_errors %}
+        <div style="background: #FFEBEE; color: #C62828; padding: 1.25rem; border-radius: 6px; margin-bottom: 2rem; border-left: 4px solid #C62828;">
+            {% for error in form.non_field_errors %}
+                <div>{{ error }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <div style="display: flex; gap: 1rem;">
+            <button type="submit" class="btn-doctor btn-success-doctor" style="flex: 1;">
+                <i class="fas fa-check"></i> Upload Report
+            </button>
+            <button type="button" class="btn-doctor btn-primary-doctor" style="flex: 1;" id="cancel-report-btn">
+                <i class="fas fa-times"></i> Cancel
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Recent Reports -->
+{% if recent_reports %}
+<div class="doctor-card">
+    <h3><i class="fas fa-history"></i> Recent Patient Reports</h3>
+    
+    <div style="overflow-x: auto;">
+        <div class="table-doctor">
+            <table style="width: 100%; margin: 0;">
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-user"></i> Patient Name</th>
+                        <th><i class="fas fa-stethoscope"></i> Condition</th>
+                        <th><i class="fas fa-calendar"></i> Diagnosis Date</th>
+                        <th><i class="fas fa-check"></i> Status</th>
+                        <th><i class="fas fa-file"></i> File</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in recent_reports %}
+                    <tr>
+                        <td><strong>{{ report.patient.get_full_name }}</strong></td>
+                        <td>{{ report.condition }}</td>
+                        <td>{{ report.diagnosis_date|date:"M d, Y" }}</td>
+                        <td>
+                            <span class="badge-status" style="background: {% if report.status == 'active' %}#E3F2FD{% elif report.status == 'chronic' %}#FFF3E0{% else %}#E8F5E9{% endif %}; color: {% if report.status == 'active' %}#1565C0{% elif report.status == 'chronic' %}#F57C00{% else %}#2E7D32{% endif %};">
+                                {{ report.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if report.file_upload %}
+                            <a href="{{ report.file_upload.url }}" class="btn-doctor btn-primary-doctor" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                                <i class="fas fa-download"></i> Download
+                            </a>
+                            {% else %}
+                            <span style="color: #546E7A; font-size: 0.9rem;">No file</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<script>
+    document.getElementById('cancel-report-btn').addEventListener('click', function() {
+        loadContent('{% url 'doctor_dashboard' %}?ajax=1', 'dashboard');
+        document.querySelector('.sidebar .sidebar-link[data-page="dashboard"]').classList.add('active');
+    });
+</script>

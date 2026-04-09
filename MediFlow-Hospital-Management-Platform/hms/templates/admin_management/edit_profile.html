@@ -1,0 +1,477 @@
+{% extends 'admin_management/base_admin.html' %}
+
+{% block title %}Edit Profile - MediFlow Admin{% endblock %}
+
+{% block content %}
+<div class="admin-content">
+    <div class="page-header">
+        <h1><i class="fas fa-user-circle"></i> Admin Profile Settings</h1>
+    </div>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}success{% endif %}">
+                <i class="fas fa-{% if message.tags %}exclamation-circle{% else %}check-circle{% endif %}"></i>
+                <span>{{ message }}</span>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="profile-container">
+        <!-- Profile Information Tab -->
+        <div class="tab-content active" id="profile-tab">
+            <div class="card">
+                <h2><i class="fas fa-user"></i> Profile Information</h2>
+                <form method="POST" class="profile-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="update_profile">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="first_name">First Name</label>
+                            <input type="text" id="first_name" name="first_name" value="{{ admin_user.first_name }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="last_name">Last Name</label>
+                            <input type="text" id="last_name" name="last_name" value="{{ admin_user.last_name }}" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" value="{{ admin_user.email }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" value="{{ admin_user.phone|default:'' }}" placeholder="+91-XXXXXXXXXX">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Role</label>
+                        <input type="text" value="Administrator" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Member Since</label>
+                        <input type="text" value="{{ admin_user.date_joined|date:'M d, Y' }}" disabled>
+                    </div>
+
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Security Tab -->
+        <div class="tab-content" id="security-tab">
+            <div class="card">
+                <h2><i class="fas fa-lock"></i> Change Password</h2>
+                <form method="POST" class="security-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="change_password">
+                    
+                    <div class="security-section">
+                        <h3>Update Your Password</h3>
+                        <p class="text-muted">Keep your account secure by using a strong password.</p>
+
+                        <div class="form-group">
+                            <label for="old_password">Current Password *</label>
+                            <input type="password" id="old_password" name="old_password" placeholder="••••••••" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="new_password">New Password *</label>
+                            <input type="password" id="new_password" name="new_password" placeholder="••••••••" required>
+                            <div class="password-requirements">
+                                <div class="req-item">
+                                    <span id="req-length" class="req-check">○</span>
+                                    <span>At least 8 characters</span>
+                                </div>
+                                <div class="req-item">
+                                    <span id="req-uppercase" class="req-check">○</span>
+                                    <span>Mix of uppercase and lowercase</span>
+                                </div>
+                                <div class="req-item">
+                                    <span id="req-numbers" class="req-check">○</span>
+                                    <span>Numbers and symbols</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirm_password">Confirm Password *</label>
+                            <input type="password" id="confirm_password" name="confirm_password" placeholder="••••••••" required>
+                        </div>
+
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-key"></i> Update Password
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2><i class="fas fa-shield-alt"></i> Security Settings</h2>
+                <div class="security-section">
+                    <div class="security-item">
+                        <div class="security-info">
+                            <h4>Two-Factor Authentication</h4>
+                            <p>Coming Soon - Add an extra layer of security to your account</p>
+                        </div>
+                        <button class="btn-secondary" disabled>Enable 2FA</button>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="security-item">
+                        <div class="security-info">
+                            <h4>Login History</h4>
+                            <p>View your recent login activity and manage sessions</p>
+                        </div>
+                        <button class="btn-secondary" disabled>View History</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tab-navigation">
+        <button class="tab-btn active" onclick="switchTab('profile-tab')">
+            <i class="fas fa-user"></i> Profile
+        </button>
+        <button class="tab-btn" onclick="switchTab('security-tab')">
+            <i class="fas fa-lock"></i> Security
+        </button>
+    </div>
+</div>
+
+<style>
+    .page-header {
+        margin-bottom: 30px;
+    }
+
+    .page-header h1 {
+        font-size: 28px;
+        color: #333;
+        margin: 0;
+    }
+
+    .profile-container {
+        max-width: 800px;
+    }
+
+    .tab-navigation {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 30px;
+        border-bottom: 2px solid #e0e0e0;
+    }
+
+    .tab-btn {
+        padding: 12px 20px;
+        border: none;
+        background: none;
+        color: #999;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-bottom: 3px solid transparent;
+        margin-bottom: -2px;
+    }
+
+    .tab-btn:hover {
+        color: #333;
+    }
+
+    .tab-btn.active {
+        color: #00897B;
+        border-bottom-color: #00897B;
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    .card {
+        background: white;
+        border-radius: 8px;
+        padding: 30px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+
+    .card h2 {
+        margin-top: 0;
+        margin-bottom: 25px;
+        color: #333;
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .card h2 i {
+        color: #00897B;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 6px;
+        font-family: inherit;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+    .form-group input:focus {
+        outline: none;
+        border-color: #00897B;
+        box-shadow: 0 0 0 3px rgba(0, 137, 123, 0.1);
+    }
+
+    .form-group input:disabled {
+        background: #f5f5f5;
+        color: #999;
+        cursor: not-allowed;
+    }
+
+    .password-requirements {
+        background: #f5f5f5;
+        padding: 15px;
+        border-radius: 6px;
+        margin-top: 10px;
+    }
+
+    .req-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #999;
+        font-size: 13px;
+        margin-bottom: 8px;
+    }
+
+    .req-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .req-check {
+        display: inline-block;
+        width: 20px;
+        text-align: center;
+        color: #ddd;
+        font-weight: 600;
+    }
+
+    .req-check.met {
+        color: #4CAF50;
+    }
+
+    .security-section {
+        margin-bottom: 20px;
+    }
+
+    .security-section h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        color: #333;
+    }
+
+    .security-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 0;
+    }
+
+    .security-item:last-child {
+        padding-bottom: 0;
+    }
+
+    .security-info h4 {
+        margin: 0 0 5px 0;
+        color: #333;
+        font-size: 15px;
+    }
+
+    .security-info p {
+        margin: 0;
+        color: #999;
+        font-size: 13px;
+    }
+
+    .divider {
+        height: 1px;
+        background: #e0e0e0;
+        margin: 20px 0;
+    }
+
+    .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #00897B 0%, #004D40 100%);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 137, 123, 0.3);
+    }
+
+    .btn-secondary {
+        padding: 10px 20px;
+        background: #f0f0f0;
+        color: #333;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+        background: #e0e0e0;
+    }
+
+    .btn-secondary:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    .text-muted {
+        color: #999;
+        font-size: 13px;
+    }
+
+    .alert {
+        padding: 12px 15px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .alert-success {
+        background: #E8F5E9;
+        color: #2E7D32;
+        border-left: 4px solid #4CAF50;
+    }
+
+    .alert-error {
+        background: #FFEBEE;
+        color: #C62828;
+        border-left: 4px solid #F44336;
+    }
+
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .card {
+            padding: 20px;
+        }
+
+        .security-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .tab-navigation {
+            flex-wrap: wrap;
+        }
+    }
+</style>
+
+<script>
+    const newPasswordInput = document.getElementById('new_password');
+    
+    if (newPasswordInput) {
+        newPasswordInput.addEventListener('input', function(e) {
+            const password = e.target.value;
+            
+            // Check length
+            const lengthCheck = document.getElementById('req-length');
+            if (password.length >= 8) {
+                lengthCheck.textContent = '✓';
+                lengthCheck.classList.add('met');
+            } else {
+                lengthCheck.textContent = '○';
+                lengthCheck.classList.remove('met');
+            }
+            
+            // Check uppercase/lowercase
+            const uppercaseCheck = document.getElementById('req-uppercase');
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) {
+                uppercaseCheck.textContent = '✓';
+                uppercaseCheck.classList.add('met');
+            } else {
+                uppercaseCheck.textContent = '○';
+                uppercaseCheck.classList.remove('met');
+            }
+            
+            // Check numbers/symbols
+            const numbersCheck = document.getElementById('req-numbers');
+            if (/[0-9]/.test(password) && /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+                numbersCheck.textContent = '✓';
+                numbersCheck.classList.add('met');
+            } else {
+                numbersCheck.textContent = '○';
+                numbersCheck.classList.remove('met');
+            }
+        });
+    }
+
+    function switchTab(tabName) {
+        // Hide all tabs
+        const tabs = document.querySelectorAll('.tab-content');
+        tabs.forEach(tab => tab.classList.remove('active'));
+        
+        // Remove active class from all buttons
+        const buttons = document.querySelectorAll('.tab-btn');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        
+        // Show selected tab
+        document.getElementById(tabName).classList.add('active');
+        
+        // Add active class to clicked button
+        event.target.closest('.tab-btn').classList.add('active');
+    }
+</script>
+{% endblock %}

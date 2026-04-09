@@ -16,6 +16,9 @@ def send_email(event, context):
         if action == "SIGNUP_WELCOME":
             return signup_welcome(body)
 
+        elif action == "PASSWORD_RESET_OTP":
+            return password_reset_otp(body)
+
         elif action == "BOOKING_CONFIRMATION":
             return booking_confirmation(body)
 
@@ -49,6 +52,19 @@ def signup_welcome(data):
 
     return success_response({
         "message": "Welcome email sent",
+        "recipient": data["recipient_email"]
+    })
+
+
+def password_reset_otp(data):
+    validate_required_fields(data, ["recipient_email", "recipient_name", "otp"])
+
+    logger.info(
+        f"[PASSWORD_RESET_OTP] OTP sent to {data['recipient_email']}"
+    )
+
+    return success_response({
+        "message": "Password reset OTP email sent",
         "recipient": data["recipient_email"]
     })
 

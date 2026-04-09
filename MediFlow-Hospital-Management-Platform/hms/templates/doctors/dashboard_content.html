@@ -1,0 +1,66 @@
+<!-- Stats Section -->
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="stat-label">Total Slots Created</div>
+        <div class="stat-number">{{ available_slots|add:booked_slots }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Available Slots</div>
+        <div class="stat-number">{{ available_slots }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Booked Appointments</div>
+        <div class="stat-number">{{ booked_slots }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Total Patients</div>
+        <div class="stat-number">{{ unique_patients }}</div>
+    </div>
+</div>
+
+<!-- Action Buttons -->
+<div class="action-buttons">
+    <a href="#" class="btn-doctor btn-success-doctor sidebar-link" data-page="add-availability" data-url="{% url 'create_availability' %}">
+        <i class="fas fa-plus"></i> Add Availability
+    </a>
+    <a href="#" class="btn-doctor btn-primary-doctor sidebar-link" data-page="manage-slots" data-url="{% url 'manage_availability' %}">
+        <i class="fas fa-calendar-alt"></i> Manage Slots
+    </a>
+    <a href="#" class="btn-doctor btn-warning-doctor sidebar-link" data-page="bookings" data-url="{% url 'doctor_view_bookings' %}">
+        <i class="fas fa-book"></i> View Bookings
+    </a>
+</div>
+
+<!-- Recent Bookings Section -->
+<div class="doctor-card">
+    <h3><i class="fas fa-history"></i> Recent Patient Bookings</h3>
+    {% if recent_bookings %}
+    <div class="table-doctor">
+        <table style="width: 100%; margin: 0;">
+            <thead>
+                <tr>
+                    <th><i class="fas fa-user"></i> Patient Name</th>
+                    <th><i class="fas fa-calendar"></i> Appointment Date</th>
+                    <th><i class="fas fa-clock"></i> Time</th>
+                    <th><i class="fas fa-check"></i> Booked On</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in recent_bookings %}
+                <tr>
+                    <td><strong>{{ booking.patient.get_full_name }}</strong></td>
+                    <td>{{ booking.slot.date|date:"M d, Y" }}</td>
+                    <td>{{ booking.slot.start_time|time:"H:i" }} – {{ booking.slot.end_time|time:"H:i" }}</td>
+                    <td>{{ booking.created_at|date:"M d, Y" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 3rem; color: var(--text-light);">
+        <i class="fas fa-inbox" style="font-size: 2.5rem; margin-bottom: 1rem; color: #B2DFDB;"></i>
+        <p>No bookings yet. Create some availability slots to get started.</p>
+    </div>
+    {% endif %}
+</div>

@@ -1,68 +1,430 @@
 {% extends 'base.html' %}
 
-{% block title %}Patient Signup - HMS{% endblock %}
+{% block title %}Patient Signup - MediFlow{% endblock %}
 
 {% block content %}
-<div class="card" style="max-width: 500px; margin: 3rem auto;">
-    <h2 style="text-align: center; margin-bottom: 0.25rem;">👤 Patient Registration</h2>
-    <p style="color: #546E7A; margin-bottom: 2rem; text-align: center;">Create your patient account to book appointments</p>
-    
-    <form method="post">
-        {% csrf_token %}
-        
-        {% if form.non_field_errors %}
-        <div class="errorlist">
-            {% for error in form.non_field_errors %}
-                <li>{{ error }}</li>
-            {% endfor %}
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .signup-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        min-height: 100vh;
+    }
+
+    /* Left Section - Features */
+    .left-section {
+        background: linear-gradient(135deg, #00897B 0%, #004D40 100%);
+        color: white;
+        padding: 60px 50px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        overflow-y: auto;
+    }
+
+    .left-section h1 {
+        font-size: 48px;
+        font-weight: 700;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .left-section h1 i {
+        font-size: 56px;
+    }
+
+    .left-section .tagline {
+        font-size: 18px;
+        font-weight: 300;
+        margin-bottom: 50px;
+        opacity: 0.95;
+        line-height: 1.6;
+    }
+
+    .feature-list {
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+        margin-bottom: 40px;
+    }
+
+    .feature-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        font-size: 15px;
+        line-height: 1.6;
+    }
+
+    .feature-item i {
+        font-size: 24px;
+        color: #4DB6AC;
+        margin-top: 2px;
+        flex-shrink: 0;
+    }
+
+    /* Right Section - Signup Form */
+    .right-section {
+        background: #f8f9fa;
+        padding: 60px 50px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        overflow-y: auto;
+    }
+
+    .signup-card {
+        width: 100%;
+        max-width: 450px;
+        animation: slideIn 0.4s ease;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .signup-header {
+        margin-bottom: 2rem;
+    }
+
+    .signup-header h1 {
+        font-size: 32px;
+        color: #00897B;
+        margin-bottom: 10px;
+        font-weight: 700;
+    }
+
+    .signup-header p {
+        color: #666;
+        font-size: 14px;
+        margin: 0;
+    }
+
+    .benefits {
+        background: #E8F5E9;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border-left: 4px solid #00897B;
+    }
+
+    .benefits h4 {
+        color: #00897B;
+        margin-bottom: 0.8rem;
+        font-size: 0.95rem;
+    }
+
+    .benefits ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .benefits li {
+        color: #00695C;
+        font-size: 0.85rem;
+        padding: 0.4rem 0;
+    }
+
+    .benefits li::before {
+        content: '✓ ';
+        font-weight: bold;
+        margin-right: 0.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.6rem;
+        color: #263238;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 0.85rem 1rem;
+        border: 2px solid #E0F2F1;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-family: inherit;
+        transition: all 0.3s;
+        box-sizing: border-box;
+    }
+
+    .form-group input:focus {
+        outline: none;
+        border-color: #00897B;
+        box-shadow: 0 0 0 3px rgba(0, 137, 123, 0.1);
+        background: #FAFBFC;
+    }
+
+    .form-group input::placeholder {
+        color: #90A4AE;
+    }
+
+    .errorlist {
+        background: #FFEBEE;
+        color: #C62828;
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        border-left: 4px solid #C62828;
+    }
+
+    .errorlist li {
+        list-style: none;
+        margin: 0;
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, #00897B 0%, #00695C 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 4px 12px rgba(0, 137, 123, 0.25);
+        margin-top: 1rem;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 137, 123, 0.35);
+    }
+
+    .submit-btn:active {
+        transform: translateY(0);
+    }
+
+    .login-section {
+        text-align: center;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid #E0E0E0;
+    }
+
+    .login-section p {
+        color: #666;
+        margin: 0;
+        font-size: 0.95rem;
+    }
+
+    .login-section a {
+        color: #00897B;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .login-section a:hover {
+        text-decoration: underline;
+    }
+
+    @media (max-width: 1024px) {
+        .signup-container {
+            grid-template-columns: 1fr;
+        }
+
+        .left-section {
+            padding: 40px 30px;
+            min-height: 300px;
+        }
+
+        .left-section h1 {
+            font-size: 36px;
+        }
+
+        .right-section {
+            padding: 40px 30px;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .left-section {
+            padding: 30px 20px;
+        }
+
+        .left-section h1 {
+            font-size: 28px;
+        }
+
+        .right-section {
+            padding: 30px 20px;
+        }
+
+        .signup-header h1 {
+            font-size: 24px;
+        }
+    }
+</style>
+
+<div class="signup-container">
+    <!-- Left Section - Features -->
+    <div class="left-section">
+        <div>
+            <h1><i class="fas fa-heartbeat"></i> Welcome to MediFlow</h1>
+            <p class="tagline">Experience better healthcare with smart appointment booking and expert doctors at your fingertips</p>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <i class="fas fa-search"></i>
+                    <span><strong>Find Specialists:</strong> Browse verified doctors and their expertise</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-book-medical"></i>
+                    <span><strong>Digital Records:</strong> Access your prescriptions and medical history anytime</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-bell"></i>
+                    <span><strong>Smart Reminders:</strong> Never miss an appointment with instant notifications</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span><strong>Flexible Booking:</strong> Book appointments that fit your schedule</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-sync"></i>
+                    <span><strong>Calendar Sync:</strong> Integrate with your Google Calendar automatically</span>
+                </div>
+            </div>
         </div>
-        {% endif %}
-        
-        <div class="form-group">
-            <label for="{{ form.email.id_for_label }}">Email Address</label>
-            {{ form.email }}
-            {% if form.email.errors %}
-            <div class="errorlist">{{ form.email.errors }}</div>
+    </div>
+
+    <!-- Right Section - Signup Form -->
+    <div class="right-section">
+        <div class="signup-card">
+            <!-- Header -->
+            <div class="signup-header">
+                <h1>Join as Patient</h1>
+                <p>Get started with your health journey today</p>
+            </div>
+
+            <!-- Benefits -->
+            <div class="benefits">
+                <h4>✨ What You'll Get:</h4>
+                <ul>
+                    <li>Access to network of doctors</li>
+                    <li>Easy appointment booking</li>
+                    <li>Digital prescriptions</li>
+                    <li>Health reminders</li>
+                </ul>
+            </div>
+
+            <!-- Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="errorlist">{{ message }}</div>
+                {% endfor %}
             {% endif %}
+
+            <!-- Signup Form -->
+            <form method="post">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="errorlist">
+                        {% for error in form.non_field_errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Email Field -->
+                <div class="form-group">
+                    <label for="{{ form.email.id_for_label }}">Email Address</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <div class="errorlist">{{ form.email.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Name Fields -->
+                <div class="form-group">
+                    <label for="{{ form.first_name.id_for_label }}">First Name</label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                        <div class="errorlist">{{ form.first_name.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.last_name.id_for_label }}">Last Name</label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}
+                        <div class="errorlist">{{ form.last_name.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Password Fields -->
+                <div class="form-group">
+                    <label for="{{ form.password1.id_for_label }}">Password</label>
+                    <input type="password" 
+                           id="{{ form.password1.id_for_label }}" 
+                           name="{{ form.password1.html_name }}" 
+                           placeholder="Enter your password"
+                           autocomplete="new-password"
+                           required>
+                    {% if form.password1.errors %}
+                        <div class="errorlist">{{ form.password1.errors }}</div>
+                    {% endif %}
+                    <small style="color: #546E7A; font-size: 0.85rem; display: block; margin-top: 0.5rem;">
+                        Password requirements:
+                        <ul style="margin: 0.5rem 0 0 1.5rem; padding: 0;">
+                            <li>At least 8 characters</li>
+                            <li>Mix of uppercase and lowercase letters</li>
+                            <li>Include numbers and special characters</li>
+                        </ul>
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+                    <input type="password" 
+                           id="{{ form.password2.id_for_label }}" 
+                           name="{{ form.password2.html_name }}" 
+                           placeholder="Confirm your password"
+                           autocomplete="new-password"
+                           required>
+                    {% if form.password2.errors %}
+                        <div class="errorlist">{{ form.password2.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="submit-btn"><i class="fas fa-check"></i> Create Account</button>
+            </form>
+
+            <!-- Login Link -->
+            <div class="login-section">
+                <p>Already have an account? <a href="{% url 'login' %}">Sign in here</a></p>
+            </div>
         </div>
-        
-        <div class="form-group">
-            <label for="{{ form.first_name.id_for_label }}">First Name</label>
-            {{ form.first_name }}
-            {% if form.first_name.errors %}
-            <div class="errorlist">{{ form.first_name.errors }}</div>
-            {% endif %}
-        </div>
-        
-        <div class="form-group">
-            <label for="{{ form.last_name.id_for_label }}">Last Name</label>
-            {{ form.last_name }}
-            {% if form.last_name.errors %}
-            <div class="errorlist">{{ form.last_name.errors }}</div>
-            {% endif %}
-        </div>
-        
-        <div class="form-group">
-            <label for="{{ form.password1.id_for_label }}">Password</label>
-            {{ form.password1 }}
-            {% if form.password1.errors %}
-            <div class="errorlist">{{ form.password1.errors }}</div>
-            {% endif %}
-        </div>
-        
-        <div class="form-group">
-            <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
-            {{ form.password2 }}
-            {% if form.password2.errors %}
-            <div class="errorlist">{{ form.password2.errors }}</div>
-            {% endif %}
-        </div>
-        
-        <button type="submit" class="btn btn-success" style="width: 100%;">Create Account</button>
-    </form>
-    
-    <p style="margin-top: 2rem; text-align: center; color: #546E7A;">
-        Already have an account? <a href="{% url 'login' %}">Sign in here</a>
-    </p>
+    </div>
 </div>
+
 {% endblock %}

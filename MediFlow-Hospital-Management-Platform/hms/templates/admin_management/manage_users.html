@@ -1,0 +1,167 @@
+{% extends 'admin_management/base_admin.html' %}
+
+{% block title %}Manage Users - MediFlow{% endblock %}
+{% block page_title %}User Management{% endblock %}
+
+{% block content %}
+<style>
+    .action-dropdown {
+        display: inline-block;
+        position: relative;
+    }
+
+    .action-btn {
+        padding: 0.5rem 0.75rem;
+        border: none;
+        background: #F57C00;
+        color: white;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: background 0.2s;
+    }
+
+    .action-btn:hover {
+        background: #E65100;
+    }
+
+    .badge-patient {
+        background: #2E7D32;
+        color: white;
+    }
+
+    .badge-doctor {
+        background: #1976D2;
+        color: white;
+    }
+</style>
+
+<div class="container-fluid mt-4">
+    <!-- Filters -->
+    <div class="filter-section">
+        <form method="get" class="filter-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; align-items: end;">
+            <div class="filter-group">
+                <label for="search">Search by name or email</label>
+                <input type="text" id="search" name="search" class="form-control" placeholder="Enter name or email..." value="{{ search_query }}">
+            </div>
+
+            <div class="filter-group">
+                <label for="role">All Roles</label>
+                <select id="role" name="role" class="form-select">
+                    <option value="">All Roles</option>
+                    <option value="doctor" {% if role_filter == 'doctor' %}selected{% endif %}>Doctor</option>
+                    <option value="patient" {% if role_filter == 'patient' %}selected{% endif %}>Patient</option>
+                    <option value="admin" {% if role_filter == 'admin' %}selected{% endif %}>Admin</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="status">All Status</label>
+                <select id="status" name="status" class="form-select">
+                    <option value="">All Status</option>
+                    <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+                    <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <button type="submit" class="btn btn-view" style="width: 100%;">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Users Table -->
+    <div class="admin-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h2 style="margin: 0;">User Management</h2>
+            <span style="background: #00897B; color: white; padding: 0.5rem 1rem; border-radius: 6px;">
+                Total: {{ total_count }}
+            </span>
+        </div>
+
+        <div class="table-admin">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Joined</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td><strong>{{ user.get_full_name }}</strong></td>
+                        <td>{{ user.email }}</td>
+                        <td>
+                            {% if user.role == 'DOCTOR' %}
+                            <span class="badge-status badge-doctor">Doctor</span>
+                            {% elif user.role == 'PATIENT' %}
+                            <span class="badge-status badge-patient">Patient</span>
+                            {% else %}
+                            <span class="badge-status" style="background: #1976D2; color: white;">Admin</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.is_active %}
+                            <span class="badge-status badge-active">
+                                <i class="fas fa-check-circle"></i> Active
+                            </span>
+                            {% else %}
+                            <span class="badge-status badge-inactive">
+                                <i class="fas fa-times-circle"></i> Inactive
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                        <td>
+                            <div class="action-dropdown">
+                                {% if user.is_active %}
+                                <form method="post" action="{% url 'admin_management:user_action' user.id 'suspend' %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-admin btn-suspend" 
+                                            onclick="return confirm('Suspend this user?');" title="Suspend">
+                                        <i class="fas fa-ban"></i> Suspend
+                                    </button>
+                                </form>
+                                {% else %}
+                                <form method="post" action="{% url 'admin_management:user_action' user.id 'activate' %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-admin btn-approve" title="Activate">
+                                        <i class="fas fa-check"></i> Activate
+                                    </button>
+                                </form>
+                                {% endif %}
+
+                                <form method="post" action="{% url 'admin_management:user_action' user.id 'delete' %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-admin btn-delete" 
+                                            onclick="return confirm('Are you sure? This action cannot be undone.');" title="Delete">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 2rem; color: #546E7A;">
+                            <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 0.5rem; display: block;"></i>
+                            No users found matching your criteria
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

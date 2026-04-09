@@ -1,0 +1,195 @@
+{% extends 'admin_management/base_admin.html' %}
+
+{% block title %}Admin Dashboard - MediFlow{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<style>
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-color-primary {
+        color: #00897B;
+    }
+
+    .stat-color-success {
+        color: #2E7D32;
+    }
+
+    .stat-color-warning {
+        color: #F57C00;
+    }
+
+    .stat-color-danger {
+        color: #C62828;
+    }
+
+    .pending-section {
+        background: #FFF3E0;
+        border-left: 4px solid #F57C00;
+    }
+
+    .doctor-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        border-bottom: 1px solid #E0E0E0;
+    }
+
+    .doctor-item:last-child {
+        border-bottom: none;
+    }
+
+    .doctor-info {
+        flex: 1;
+    }
+
+    .doctor-name {
+        font-weight: 600;
+        color: #263238;
+        margin-bottom: 0.25rem;
+    }
+
+    .doctor-email {
+        font-size: 0.85rem;
+        color: #546E7A;
+    }
+
+    .quick-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+</style>
+
+<div class="container-fluid mt-4">
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <i class="fas fa-users" style="font-size: 2rem;" class="stat-color-primary"></i>
+            <div class="stat-number stat-color-primary">{{ total_users }}</div>
+            <div class="stat-label">Total Users</div>
+        </div>
+
+        <div class="stat-card">
+            <i class="fas fa-user-md" style="font-size: 2rem; color: #2E7D32;"></i>
+            <div class="stat-number stat-color-success">{{ total_doctors }}</div>
+            <div class="stat-label">Total Doctors</div>
+        </div>
+
+        <div class="stat-card">
+            <i class="fas fa-user-injured" style="font-size: 2rem; color: #00897B;"></i>
+            <div class="stat-number stat-color-primary">{{ total_patients }}</div>
+            <div class="stat-label">Total Patients</div>
+        </div>
+
+        <div class="stat-card">
+            <i class="fas fa-hourglass-half" style="font-size: 2rem; color: #F57C00;"></i>
+            <div class="stat-number stat-color-warning">{{ pending_approvals }}</div>
+            <div class="stat-label">Pending Approvals</div>
+        </div>
+
+        <div class="stat-card">
+            <i class="fas fa-calendar-check" style="font-size: 2rem; color: #00897B;"></i>
+            <div class="stat-number stat-color-primary">{{ total_bookings }}</div>
+            <div class="stat-label">Total Bookings</div>
+        </div>
+    </div>
+
+    <!-- Pending Approvals Section -->
+    {% if pending_doctors %}
+    <div class="admin-card pending-section">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h2 style="margin: 0;">
+                <i class="fas fa-user-check"></i> Doctor Profiles
+            </h2>
+            <a href="{% url 'admin:manage_doctors' %}" class="btn btn-view">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+
+        <div style="background: white; border-radius: 8px; padding: 1rem;">
+            {% for approval in pending_doctors %}
+            <div class="doctor-item">
+                <div class="doctor-info">
+                    <div class="doctor-name">{{ approval.doctor.get_full_name }}</div>
+                    <div class="doctor-email">{{ approval.doctor.email }}</div>
+                </div>
+                <div class="quick-actions">
+                    <form method="post" action="{% url 'admin:doctor_action' approval.id 'approve' %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-admin btn-approve" title="Approve">
+                            <i class="fas fa-check"></i> Approve
+                        </button>
+                    </form>
+                    <form method="post" action="{% url 'admin:doctor_action' approval.id 'suspend' %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-admin btn-suspend" title="Suspend">
+                            <i class="fas fa-ban"></i> Suspend
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div style="margin-top: 1rem; text-align: center;">
+            <span style="background: #F57C00; color: white; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 500;">
+                {{ pending_approvals }} Pending
+            </span>
+        </div>
+    </div>
+    {% else %}
+    <div class="admin-card" style="text-align: center; padding: 3rem; color: #546E7A;">
+        <i class="fas fa-check-circle" style="font-size: 3rem; color: #2E7D32; margin-bottom: 1rem; display: block;"></i>
+        <h3>All doctors approved!</h3>
+        <p>No pending approvals at this time.</p>
+    </div>
+    {% endif %}
+
+    <!-- Recent System Logs -->
+    <div class="admin-card">
+        <h2>
+            <i class="fas fa-history"></i> Recent Activity
+        </h2>
+
+        <div class="table-admin">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Action</th>
+                        <th>Description</th>
+                        <th>User</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in recent_logs %}
+                    <tr>
+                        <td>
+                            <span class="badge" style="background: #00897B; color: white;">
+                                {{ log.get_action_display }}
+                            </span>
+                        </td>
+                        <td>{{ log.description }}</td>
+                        <td>{{ log.user.email }}</td>
+                        <td>{{ log.timestamp|date:"M d, Y H:i" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 2rem; color: #546E7A;">
+                            No activity yet
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
