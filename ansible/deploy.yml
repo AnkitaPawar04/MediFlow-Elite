@@ -1,11 +1,13 @@
+---
 - name: Deploy MediFlow
   hosts: localhost
-  become: yes
 
   tasks:
 
     - name: Install dependencies
-      shell: pip3 install -r ../MediFlow-Hospital-Management-Platform/requirements.txt --break-system-packages
+      shell: |
+        cd ../MediFlow-Hospital-Management-Platform
+        pip3 install -r requirements.txt --break-system-packages
 
     - name: Run migrations
       shell: |
