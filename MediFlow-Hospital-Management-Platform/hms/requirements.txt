@@ -1,8 +1,4 @@
 Django==4.2.7
-<<<<<<< HEAD
-# psycopg2-binary==2.9.9
-=======
->>>>>>> b0d9d82 (Fixed Ansible deployment)
 djangorestframework==3.14.0
 python-dotenv==1.0.0
 requests==2.31.0
@@ -11,3 +7,4 @@ google-auth-httplib2==0.2.0
 google-api-python-client==2.100.0
 razorpay==1.4.1
 selenium==4.15.2
+psycopg2-binary
